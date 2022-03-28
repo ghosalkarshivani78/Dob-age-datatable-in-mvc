@@ -1,0 +1,287 @@
+﻿@model cascadingprac.Models.userdetail
+
+@{
+    ViewBag.Title = "Create";
+    
+}
+    
+<h2>Create</h2>
+<style>
+.error
+{
+color:Red;    
+}
+</style>
+
+<div class="Container">
+@*<form action="@Url.Action("Create", "Home")" method="post" id="myForm">*@
+<div class="form-row">
+    <div class="form-group col-md-6">
+        <label>
+            First Name</label>
+        @Html.TextBoxFor(x => x.firstname, new { @class = "form-control" })
+    </div>
+    <div class="form-group col-md-6">
+        <label>
+            Last Name</label>
+        @Html.TextBoxFor(x => x.lastname, new { @class = "form-control" })
+    </div>
+</div>
+<div class="form-row">
+    <div class="form-group">
+        <label>Email</label>
+        @Html.TextBoxFor(x => x.email, new { @class = "form-control" })
+    </div>
+</div>
+<div class="form-row">
+    <div class="form-group">
+        <label>Address</label>
+        @Html.TextBoxFor(x => x.address, new { @class = "form-control" })
+    </div>
+</div>
+<div class="form-row">
+    <div class="form-group col-md-4">
+        <label>Country</label>
+        @Html.DropDownListFor(x => x.countryid, Model.countries, "Please select", new { @class = "form-control" })
+    </div>
+      <div class="form-group col-md-4">
+          <label>State</label>
+          @Html.DropDownListFor(x => x.stateid, Model.states, new { @class = "form-control" })
+      </div>
+    <div class="form-group col-md-4">
+          <label>City</label>
+          @Html.DropDownListFor(x => x.cityid, Model.cities, new { @class = "form-control" })
+      </div>
+</div>
+<div class="form-row">
+    <div class="form-group">
+        <label>Number</label>
+        @Html.TextBoxFor(x => x.number, new { @class = "form-control" })
+    </div>
+</div>
+<div class="form-row">
+    <div class="form-group col-md-6">
+        <label>Dob</label>
+        @Html.TextBoxFor(x => x.dob, new { @class = "form-control", @type = "date" })
+    </div>
+    <div class="form-group col-md-6">
+        <label>Age</label>
+        @Html.TextBoxFor(x => x.age, new { @class = "form-control" })
+    </div>
+</div>
+ @* <input type="submit" value="Insert" class="btn btn-primary" />*@
+ <input type="hidden" name="username" id="emailv"/><span id="user"></span><br/>
+
+<div class="form-row">
+    <div class="form-group">
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">
+                Close</button>
+            <button type="button" class="btn btn-primary" id="myform">
+                Insert</button>
+        </div>
+    </div>
+</div>
+@*</form>*@
+</div>
+
+
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var ddlcountries = $("#countryid");
+        var ddlstates = $("#stateid");
+        var ddlcities = $("#cityid");
+        var selectdate=$("#dob");
+        var duplicate=false;
+        ddlcountries.change(function () {
+            debugger;
+            //alert(ddlcountries.val());
+            $.ajax({
+                url: '/dropdown/GetstateBycountryId',
+                method: 'get',
+                data: { countryid: $(this).val() },
+                dataType: 'json',
+                success: function (data) {
+                    ddlstates.empty();
+                    ddlstates.append($('<option/>', { value: "", text: 'Select States' }));
+                    $(data).each(function (index, item) {
+                        ddlstates.append($('<option/>', { value: item.Value, text: item.Text }));
+                    });
+                }
+            });
+        });
+
+
+        //For calcute age according to select date
+              selectdate.change(function () {
+            
+                var now = new Date();
+                var birthdate = new Date($("#dob").val());
+                var nowyear = now.getFullYear();
+                var birthyear = birthdate.getFullYear();
+                var age = nowyear - birthyear;
+                $('#age').val(age);
+                
+             });
+
+
+    $('#myform').on('click',function(e){
+    debugger;
+    let first=$("#firstname").val();
+    let last=$("#firstname").val();
+    let email=$("#email").val();
+    let address=$("#address").val();
+    let countryid=$("#countryid").val();
+    let stateid=$("#stateid").val();
+    let cityid=$("#cityid").val();
+    let number=$("#number").val();
+    let dob=$("#dob").val();
+    let age=$("#age").val();
+
+            var ue = new Object();
+            ue.firstname = first;
+            ue.lastname = last;
+            ue.email = email;
+            ue.address = address;
+            ue.countryid = countryid;
+            ue.stateid = stateid;
+            ue.cityid = cityid;
+            ue.number = number;
+            ue.dob=dob;
+            ue.age=age;
+
+
+
+    $(".error").remove();
+    if (first == "")
+     {       
+       $('#firstname').after('<span class="error">Enter a First Name</span>');
+     }
+    if(last == ""){
+      $("#lastname").after('<span class="error">Enter Second Name</span>');
+    }
+    if(email == ""){
+        $("#email").after('<span class="error">Enter Email</span>')
+    }
+    else
+    {
+      var regEx =/^([\w-\.]+@@([\w-]+\.)+[\w-]{2,4})?$/;
+      var validEmail = regEx.test(email);
+      if (!validEmail) {
+        $('#email').after('<span class="error">Enter a valid email</span>');
+      return false;
+      }
+    }
+     if(address == ""){
+        $("#address").after('<span class="error">Enter Address</span>')
+    }
+      if(countryid == ""){
+       $("#countryid").after('<span class="error">Enter Country</span>')
+    }
+     if(stateid == ""){
+       $("#stateid").after('<span class="error">Enter State</span>')
+    }
+     if(cityid == ""){
+       $("#cityid").after('<span class="error">Enter City</span>')
+    }
+     if(number == ""){
+       $("#number").after('<span class="error">Enter Number</span>')
+    }
+    else
+    {
+        var num = number.length;
+        if(num != 10)
+        {
+             $("#number").after('<span class="error">Enter 10 Digit Number</span>')
+        }
+    }
+    if(dob == "")
+    {
+        $("#dob").after('<span class="error">Enter Date of Birth</span>')
+    }
+    if(age == "")
+    {
+        $("#age").after('<span class="error">Enter Age</span>')
+    }
+       if(email != "" && validEmail == true && duplicate == false)
+        {
+          $.ajax({
+
+                url: '/Home/GetEmailId',
+                method: 'Get',
+                data: { email:email },
+                dataType: 'json',
+                success: function (data) {
+                   if(data==1){
+                    $('#user').css('color', 'red').html("This Email already exists!");
+                   //$("#email").after('<span class="error">Email Already Exist</span>');
+                   duplicate= false ;
+                   }
+                   else{
+                   duplicate=true;
+                   }
+                  
+                },
+                 error: function () 
+                    {
+                       alert("Error occured.");
+                    }
+            });
+      }
+      else if(duplicate == true)
+      {
+         $.ajax({
+
+                url: '/dropdown/Create',
+                method: 'Post',
+                data: ue,
+                dataType: 'json',
+                success: function (data) 
+            {
+                    if(!data)
+                    {
+                      window.open("/Home/Index","_Self")
+                    }
+                },          
+               
+                 error: function () {
+                        alert("Error occured.");
+                      }
+            });
+      }
+      else{
+      return false;
+      }
+
+    });
+
+
+      
+        ddlstates.change(function () {
+            debugger;
+            $.ajax({
+
+                url: '/dropdown/GetcityBystateid',
+                method: 'get',
+                data: { stateid: $(this).val() },
+                dataType: 'json',
+                success: function (data) {
+                    ddlcities.empty();
+                    ddlcities.append($('<option/>', { value: "", text: 'Select States' }));
+                    $(data).each(function (index, item) {
+                        ddlcities.append($('<option/>', { value: item.Value, text: item.Text }));
+                    });
+                }
+            });
+
+        });
+    })
+
+  
+
+
+</script>
+
+
